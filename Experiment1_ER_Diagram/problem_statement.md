@@ -1,339 +1,186 @@
-# Experiment 2: DDL Commands
+# ER Diagram Workshop – Submission Template
 
-## AIM
-To study and implement DDL commands and different types of constraints.
+## Objective
+To understand and apply ER modeling concepts by creating ER diagrams for real-world applications.
 
-## THEORY
+## Purpose
+Gain hands-on experience in designing ER diagrams that represent database structure including entities, relationships, attributes, and constraints.
 
-### 1. CREATE
-Used to create a new relation (table).
+---
 
-**Syntax:**
+# Scenario A: City Fitness Club Management
 
-```sql
-CREATE TABLE (
-  field_1 data_type(size),
-  field_2 data_type(size),
-  ...
-);
-```
+**Business Context:**  
+FlexiFit Gym wants a database to manage its members, trainers, and fitness programs.
 
-### 2. ALTER
+**Requirements:**  
+- Members register with name, membership type, and start date.  
+- Each member can join multiple programs (Yoga, Zumba, Weight Training).  
+- Trainers assigned to programs; a program may have multiple trainers.  
+- Members may book personal training sessions with trainers.  
+- Attendance recorded for each session.  
+- Payments tracked for memberships and sessions.
 
-Used to add, modify, drop, or rename fields in an existing relation.
+### ER Diagram:
+ 
+<img width="798" height="492" alt="image" src="https://github.com/user-attachments/assets/8d458f88-130a-4d22-9a54-217aaa96d981" />
 
-(a) ADD
 
-```sql
-ALTER TABLE std ADD (Address CHAR(10));
-```
+### Entities and Attributes
 
-(b) MODIFY
+**Member** - (MemberID, Name, MembershipType, StartDate)
 
-```sql
-ALTER TABLE relation_name MODIFY (field_1 new_data_type(size));
-```
+**Program** - (ProgramID, ProgramName, Description)
 
-(c) DROP
+**Trainer** - (TrainerID, Name, Specialization)
 
-```sql
-ALTER TABLE relation_name DROP COLUMN field_name;
-```
+**PersonalSession** - (SessionID, Date, Time, MemberID (FK), TrainerID (FK))
 
-(d) RENAME
+**Attendance** - (AttendanceID, SessionID (FK), MemberID (FK), Status)
 
-```sql
-ALTER TABLE relation_name RENAME COLUMN old_field_name TO new_field_name;
-```
+**Payment** - (PaymentID, MemberID (FK), Amount, PaymentDate, PaymentType)
 
-### 3. DROP TABLE
 
-Used to permanently delete the structure and data of a table.
+### Relationships and Constraints
 
-```sql
-DROP TABLE relation_name;
-```
+Member ↔ Program → **M:N**
 
-### 4. RENAME
+Trainer ↔ Program → **M:N**
 
-Used to rename an existing database object.
+Member ↔ PersonalSession → **1:N**
 
-```sql
-RENAME TABLE old_relation_name TO new_relation_name;
-```
+PersonalSession ↔ Attendance ↔ Member → **M:N**
 
-### CONSTRAINTS
+Member ↔ Payment → **1:N**
 
-Constraints are used to specify rules for the data in a table. If there is any violation between the constraint and the data action, the action is aborted by the constraint. It can be specified when the table is created (using CREATE TABLE) or after it is created (using ALTER TABLE).
+### Assumptions
 
-### 1. NOT NULL
+**Programs and trainers can exist without members.**
 
-When a column is defined as NOT NULL, it becomes mandatory to enter a value in that column.
+**Attendance is recorded per session per member.**
 
-**Syntax:**
+**Payments are linked to members (membership/session)**
 
-```sql
-CREATE TABLE Table_Name (
-  column_name data_type(size) NOT NULL
-);
-```
 
-### 2. UNIQUE
+# Scenario B: City Library Event & Book Lending System
 
-Ensures that values in a column are unique.
+**Business Context:**  
+The Central Library wants to manage book lending and cultural events.
 
-**Syntax:**
+**Requirements:**  
+- Members borrow books, with loan and return dates tracked.  
+- Each book has title, author, and category.  
+- Library organizes events; members can register.  
+- Each event has one or more speakers/authors.  
+- Rooms are booked for events and study.  
+- Overdue fines apply for late returns.
 
-```sql
-CREATE TABLE Table_Name (
-  column_name data_type(size) UNIQUE
-);
-```
+### ER Diagram:
 
-### 3. CHECK
+<img width="776" height="518" alt="image" src="https://github.com/user-attachments/assets/484d627f-17ee-44ca-b7d6-2bb79c0e97d7" />
 
-Specifies a condition that each row must satisfy.
 
-**Syntax:**
+### Entities and Attributes
 
-```sql
-CREATE TABLE Table_Name (
-  column_name data_type(size) CHECK (logical_expression)
-);
-```
+**Entity:** Member, Book, Loan, Event, Speaker, EventRegistration, Room, Fine.
 
-### 4. PRIMARY KEY
+**Attributes:** Each entity has a PK (e.g., MemberID, BookID, EventID). 
 
-Used to uniquely identify each record in a table.
+Key details like Name, Title, Author, Category, Amount are included.
 
-#### Properties:
-Must contain unique values.
+### Relationships and Constraints
 
-Cannot be null.
+Member–Loan–Book → **M:N (resolved by Loan)**.
 
-Should contain minimal fields.
+Member–EventRegistration–Event → **M:N.**
 
-**Syntax:**
+Event–Speaker → **M:N.**
 
-```sql
-CREATE TABLE Table_Name (
-  column_name data_type(size) PRIMARY KEY
-);
-```
+Event–Room → **1:N.**
 
+Loan–Fine → **1:1 (if overdue).**
 
-### 5. FOREIGN KEY
+### Assumptions
 
-Used to reference the primary key of another table.
+**A book can be borrowed by one member at a time.**
 
-**Syntax:**
+**Rooms are used for both study and events.**
 
-```sql
-CREATE TABLE Table_Name (
-  column_name data_type(size),
-  FOREIGN KEY (column_name) REFERENCES other_table(column)
-);
-```
+**Fines apply only for late returns.**
 
-### 6. DEFAULT
+**A member must exist to borrow books or join events.**
 
-Used to insert a default value into a column if no value is specified.
+**Each event has at least one room and one speaker**
 
-**Syntax:**
 
-```sql
-CREATE TABLE Table_Name (
-  col_name1 data_type,
-  col_name2 data_type,
-  col_name3 data_type DEFAULT 'default_value'
-);
-```
+# Scenario C: Restaurant Table Reservation & Ordering
 
+**Business Context:**  
+A popular restaurant wants to manage reservations, orders, and billing.
 
-**Question 1** 
+**Requirements:**  
+- Customers can reserve tables or walk in.  
+- Each reservation includes date, time, and number of guests.  
+- Customers place food orders linked to reservations.  
+- Each order contains multiple dishes; dishes belong to categories (starter, main, dessert).  
+- Bills generated per reservation, including food and service charges.  
+- Waiters assigned to serve reservations.
 
-Write a SQL query to modify the Student_details table by adding a new column Email of type VARCHAR(50) and updating the column MARKS to have a default value of 0.
+### ER Diagram:
+ 
+<img width="859" height="486" alt="image" src="https://github.com/user-attachments/assets/6d022670-3e7b-48a0-ad8f-3929fdcf4479" />
 
-```sql
-ALTER TABLE  Student_details ADD COLUMN Email VARCHAR(50);
-ALTER TABLE  Student_details ADD COLUMN MARKS DEFAULT '0';
-```
 
-### Output:
+### Entities and Attributes
 
-![image](https://github.com/user-attachments/assets/a2ad517d-78c6-4489-9474-ae83f64e32ce)
+**Customer:** Stores customer details (CustomerID, Name, Phone).
 
+**Reservation:** Tracks reservations with date, time, number of guests, and linked customer.
 
-**Question 2**
+**Order:** Represents food orders linked to reservations.
 
-Create a new table named contacts with the following specifications: 
+**Dishes:** Stores dish details with category (starter, main, dessert).
 
-contact_id as INTEGER and primary key. 
+**Bills:** Generated for each reservation, includes food and service charges.
 
-first_name as TEXT and not NULL. 
+**Waiter:** Assigned to reservations for service.
 
-last_name as TEXT and not NULL. 
 
-email as TEXT. 
+### Relationships and Constraints
 
-phone as TEXT and not NULL with a check constraint to ensure the length of phone is at least 10 characters.
+1. Customer – Reservation (1:M):
+A customer can make multiple reservations, but each reservation belongs to one customer.
 
-```sql
-CREATE TABLE contacts (
-contact_id INT PRIMARY KEY,
-first_name TEXT  NOT NULL,
-last_name TEXT NOT NULL,
-email TEXT,
-phone TEXT  NOT NULL,
-CHECK (LENGTH(phone)>=10)
-);
-```
+3. Reservation – Order (1:M):
+A reservation can have multiple orders; each order belongs to one reservation.
 
-### Output:
+5. Order – Dishes (M:N):
+An order can include multiple dishes, and a dish can appear in many orders
+(resolved via junction table if needed).
 
-![image](https://github.com/user-attachments/assets/4232e1e8-adc2-4bcc-aecc-6cb871978988)
+7. Reservation – Bills (1:1):
+Each reservation generates exactly one bill.
 
+9. Reservation – Waiter (1:N):
+A waiter can serve many reservations, but each reservation is assigned to one waiter.
 
-**Question 3**
 
-Insert all books from Out_of_print_books into Books
+### Assumptions
 
-Table attributes are ISBN, Title, Author, Publisher, YearPublished
 
-```sql
-INSERT INTO Books(ISBN, Title, Author, Publisher, YearPublished)
-SELECT ISBN, Title, Author, Publisher, YearPublished 
-FROM Out_of_print_books;
-```
+**A walk-in customer is treated the same as a reserved customer, with an
+immediate reservation created in the system.**
 
-### *Output:*
 
-![image](https://github.com/user-attachments/assets/cbec7eb2-d1e6-4204-9486-203ef3c32e2c)
+**Each reservation generates one consolidated bill, including both food and
+service charges.**
 
 
-**Question 4**
+**Waiters are linked to reservations, not individual orders.**
 
-Create a table named Departments with the following columns:
 
-DepartmentID as INTEGER DepartmentName as TEXT
+**Dishes belong to predefined categories (starter, main course, dessert).**
 
-```sql
-CREATE TABLE Departments(
-DepartmentID INTEGER,
-DepartmentName TEXT);
-```
 
-
-**Output:**
-
-![image](https://github.com/user-attachments/assets/3c02ebb4-0350-4b0b-b74a-3611066239c4)
-
-**Question 5**
-
-Write an SQL query to add two new columns, department_id and manager_id, to the table employee with datatype of INTEGER. 
-
-The manager_id column should have a default value of NULL.
-
-```sql
-ALTER TABLE employee ADD COLUMN department_id INTEGER;
-ALTER TABLE employee ADD COLUMN manager_id INTEGER DEFAULT NULL;
-```
-
-### Output:
-
-![image](https://github.com/user-attachments/assets/aa64eeea-195a-4162-91ea-0dd7a32aa315)
-
-**Question 6**
-
-Insert all customers from Old_customers into Customers
-
-Table attributes are CustomerID, Name, Address, Email
-
-```sql
-INSERT INTO Customers(CustomerID, Name, Address, Email)
-SELECT CustomerID, Name, Address, Email
-FROM Old_customers;6
-```
-
-### Output:
-
-![image](https://github.com/user-attachments/assets/5ad04860-aab6-4066-9138-47629ff8a49f)
-
-**Question 7**
-
-Write a SQL query to Add a new column named "discount" with the data type DECIMAL(5,2) to the "customer" table.
-
-Sample table: customer
-
-customer_id | cust_name | city | grade | salesman_id -------------+----------------+------------+-------+------------- 3002 | Nick Rimando | New York | 100 | 5001 3007 | Brad Davis | New York | 200 | 5001 3005 | Graham Zusi | California | 200 | 5002
-
-```sql
-ALTER TABLE customer  ADD COLUMN discount DECIMAL(5,2);
-```
-
-### Output:
-
-![image](https://github.com/user-attachments/assets/fc9f743c-666b-401b-84c5-983bd21a4926)
-
-**Question 8**
-
-Create a table named Members with the following columns:
-
-MemberID as INTEGER MemberName as TEXT JoinDate as DATE
-
-```sql
-create table Members(
-MemberID INTEGER,
-MemberName TEXT,
-JoinDate DATE
-);
-```
-
-### *Output:*
-
-![image](https://github.com/user-attachments/assets/0b0a2862-476c-4930-be64-9efc6e273acb)
-
-**Question 9**
-
-Write a SQL query to add birth_date attribute as timestamp (datatype) in the table customer 
-
-Sample table: customer
-
- customer_id |   cust_name    |    city    | grade | salesman_id 
--------------+----------------+------------+-------+-------------
-        3002 | Nick Rimando   | New York   |   100 |        5001
-        3007 | Brad Davis     | New York   |   200 |        5001
-        3005 | Graham Zusi    | California |   200 |        5002
-
-```sql
-alter table customer
-add column birth_date timestamp;
-```
-
-### Output:
-
-![image](https://github.com/user-attachments/assets/9eb90475-b45d-40ff-aa44-3813174201ba)
-
-
-**Question 10**
-
-Insert the below data into the Student_details table, allowing the Subject and MARKS columns to take their default values.
-
-RollNo      Name          Gender      
-----------  ------------  ----------  
-204         Samuel Black  M          
-
-Note: The Subject and MARKS columns will use their default values.
-
-```sql
-insert into Student_details(RollNo,Name,Gender)
-values(204,"Samuel Black","M");
-```
-
-### Output:
-
-![image](https://github.com/user-attachments/assets/9d1f9460-2ad8-4479-99d2-7a8a2d5f5797)
-
-## RESULT
-
-Thus, the SQL queries to implement different types of constraints and DDL commands have been executed successfully.
+**M:N relationship between orders and dishes may be implemented using a
+separate OrderDetails table in physical design.**
